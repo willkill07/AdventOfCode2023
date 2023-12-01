@@ -1,0 +1,37 @@
+#include "@ADVENT_DAY@.hpp"
+
+#include <chrono>
+#include <fmt/core.h>
+#include <fmt/chrono.h>
+
+#if USE_GPU
+#include <nvexec/stream_context.cuh>
+#else
+#include <exec/static_thread_pool.hpp>
+#endif
+
+using clock_type = std::chrono::steady_clock;
+
+template <typename Executor>
+void
+@ADVENT_DAY@ (Executor& executor, std::string_view const input) {
+  auto scheduler = executor.get_scheduler();
+  auto t0 = clock_type::now();
+  auto const parsed_data = parse(scheduler, input);
+  auto t1 = clock_type::now();
+  auto const part1_answer = part1(scheduler, parsed_data);
+  auto t2 = clock_type::now();
+  auto const part2_answer = part2(scheduler, parsed_data, part1_answer);
+  auto t3 = clock_type::now();
+  fmt::print("@ADVENT_DAY@\n");
+  fmt::print("  parse={}\n", t1 - t0);
+  fmt::print("  part1={} {}\n", t2 - t1, part1_answer);
+  fmt::print("  part2={} {}\n", t3 - t2, part2_answer);
+  fmt::print("  total={}\n", t3 - t0);
+}
+
+#if USE_GPU
+template void @ADVENT_DAY@ (nvexec::stream_context&, std::string_view const);
+#else
+template void @ADVENT_DAY@ (exec::static_thread_pool&, std::string_view const);
+#endif
