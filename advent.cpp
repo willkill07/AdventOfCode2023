@@ -5,11 +5,11 @@
 #include <fmt/core.h>
 
 #include <exec/static_thread_pool.hpp>
-#ifdef ENABLE_GPU
+#if ENABLE_GPU
 #include <nvexec/stream_context.cuh>
 #endif
 
-#ifdef ENABLE_GPU
+#if ENABLE_GPU
 #define DECLARE_DAY(DAY_FN)                                                    \
   template<typename Executor>                                                  \
   void DAY_FN(Executor&, std::string_view const);                              \
@@ -51,7 +51,7 @@ main()
     exec::static_thread_pool executor{ std::thread::hardware_concurrency() };
     run_all(executor);
   }
-#ifdef ENABLE_GPU
+#if ENABLE_GPU
   fmt::print("GPU Execution:\n");
   {
     nvexec::stream_context executor{};
