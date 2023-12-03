@@ -27,7 +27,8 @@
     std::string_view const);
 #endif
 
-DECLARE_DAY(day01);
+DECLARE_DAY(day01)
+DECLARE_DAY(day02)
 
 template<size_t N>
 std::string
@@ -41,6 +42,7 @@ void
 run_all(auto& executor)
 {
   day01(executor, file_contents("inputs/day01.txt"));
+  day02(executor, file_contents("inputs/day02.txt"));
 }
 
 int

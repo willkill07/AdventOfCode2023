@@ -123,3 +123,4 @@ if(ENABLE_GPU)
 endif()
 
 add_day(day01)
+add_day(day02)
