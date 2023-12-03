@@ -124,3 +124,4 @@ endif()
 
 add_day(day01)
 add_day(day02)
+add_day(day03)
