@@ -28,8 +28,7 @@ auto parse([[maybe_unused]] auto scheduler, std::string_view input) {
   return lines;
 }
 
-auto part1([[maybe_unused]] auto scheduler,
-           std::vector<std::string_view> const &parsed) {
+auto part1(auto scheduler, std::vector<std::string_view> const &parsed) {
   std::span lines{parsed};
   auto calculate_score = [=](unsigned i, std::span<int> totals) {
     auto const line = lines[i];
@@ -56,8 +55,7 @@ auto part1([[maybe_unused]] auto scheduler,
   return value;
 }
 
-auto part2([[maybe_unused]] auto scheduler,
-           std::vector<std::string_view> const &parsed,
+auto part2(auto scheduler, std::vector<std::string_view> const &parsed,
            [[maybe_unused]] int part1_answer) {
   std::span lines{parsed};
   auto calculate_score = [=](unsigned i, std::span<int> totals) {

@@ -95,7 +95,7 @@ auto parse([[maybe_unused]] auto scheduler, std::string_view input) {
   return output;
 }
 
-auto part1([[maybe_unused]] auto scheduler, std::vector<game> const &parsed) {
+auto part1(auto scheduler, std::vector<game> const &parsed) {
   std::span lines{parsed};
   auto process = [=](unsigned i, std::span<int> totals) {
     auto &gm = lines[i];
@@ -120,7 +120,7 @@ auto part1([[maybe_unused]] auto scheduler, std::vector<game> const &parsed) {
   return value;
 }
 
-auto part2([[maybe_unused]] auto scheduler, std::vector<game> const &parsed,
+auto part2(auto scheduler, std::vector<game> const &parsed,
            [[maybe_unused]] int part1_answer) {
   std::span lines{parsed};
   auto process = [=](unsigned i, std::span<int> totals) {
