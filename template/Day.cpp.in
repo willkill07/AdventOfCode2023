@@ -24,10 +24,10 @@ void
   auto const part2_answer = part2(scheduler, parsed_data, part1_answer);
   auto t3 = clock_type::now();
   fmt::print("@ADVENT_DAY@\n");
-  fmt::print("  parse={}\n", t1 - t0);
-  fmt::print("  part1={} {}\n", t2 - t1, part1_answer);
-  fmt::print("  part2={} {}\n", t3 - t2, part2_answer);
-  fmt::print("  total={}\n", t3 - t0);
+  fmt::print("  parse={:10.3}ms\n", std::chrono::duration<double, std::milli>(t1 - t0).count());
+  fmt::print("  part1={:10.3}ms {}\n", std::chrono::duration<double, std::milli>(t2 - t1).count(), part1_answer);
+  fmt::print("  part2={:10.3}ms {}\n", std::chrono::duration<double, std::milli>(t3 - t2).count(), part2_answer);
+  fmt::print("  total={:10.3}ms\n", std::chrono::duration<double, std::milli>(t3 - t0).count());
 }
 
 #if USE_GPU

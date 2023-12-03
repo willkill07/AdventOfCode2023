@@ -5,6 +5,8 @@
 
 #include <fmt/core.h>
 #include <range/v3/all.hpp>
+
+#include <exec/inline_scheduler.hpp>
 #include <stdexec/execution.hpp>
 
 namespace {
@@ -111,6 +113,7 @@ auto part1(auto scheduler, std::vector<game> const &parsed) {
           stdexec::let_value([=](std::vector<int> &totals) {
             return stdexec::transfer_just(scheduler, std::span{totals}) |
                    stdexec::bulk(lines.size(), process) |
+                   stdexec::transfer(exec::inline_scheduler{}) |
                    stdexec::then([=](std::span<int> totals) {
                      return std::reduce(std::execution::par_unseq,
                                         totals.begin(), totals.end());
@@ -141,6 +144,7 @@ auto part2(auto scheduler, std::vector<game> const &parsed,
           stdexec::let_value([=](std::vector<int> &totals) {
             return stdexec::transfer_just(scheduler, std::span{totals}) |
                    stdexec::bulk(lines.size(), process) |
+                   stdexec::transfer(exec::inline_scheduler{}) |
                    stdexec::then([=](std::span<int> totals) {
                      return std::reduce(std::execution::par_unseq,
                                         totals.begin(), totals.end());
