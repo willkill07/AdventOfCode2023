@@ -30,6 +30,7 @@
 DECLARE_DAY(day01)
 DECLARE_DAY(day02)
 DECLARE_DAY(day03)
+DECLARE_DAY(day04)
 
 template<size_t N>
 std::string
@@ -45,6 +46,7 @@ run_all(auto& executor)
   day01(executor, file_contents("inputs/day01.txt"));
   day02(executor, file_contents("inputs/day02.txt"));
   day03(executor, file_contents("inputs/day03.txt"));
+  day04(executor, file_contents("inputs/day04.txt"));
 }
 
 int
