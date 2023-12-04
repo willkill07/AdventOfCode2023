@@ -112,18 +112,19 @@ auto part2(auto scheduler, std::vector<card> const &cards,
       stdexec::sync_wait(
           stdexec::just(std::vector<int>(games.size(), 0),
                         std::vector<int>(games.size(), 0)) |
-          stdexec::let_value([=](std::vector<int> &totals,
-                                 std::vector<int> &counts) {
-            return stdexec::transfer_just(scheduler, std::span{totals},
-                                          std::span{counts}) |
-                   stdexec::bulk(games.size(), process) |
-                   stdexec::transfer(exec::inline_scheduler{}) |
-                   stdexec::then(sweep) |
-                   stdexec::then([=](std::span<int> totals,
-                                     std::span<int> counts) {
-                     return std::accumulate(counts.begin(), counts.end(), 0);
-                   });
-          }))
+          stdexec::let_value(
+              [=](std::vector<int> &totals, std::vector<int> &counts) {
+                return stdexec::transfer_just(scheduler, std::span{totals},
+                                              std::span{counts}) |
+                       stdexec::bulk(games.size(), process) |
+                       stdexec::transfer(exec::inline_scheduler{}) |
+                       stdexec::then(sweep) |
+                       stdexec::then([=](std::span<int> totals,
+                                         std::span<int> counts) {
+                         return std::reduce(std::execution::par_unseq,
+                                            counts.begin(), counts.end(), 0);
+                       });
+              }))
           .value();
   return value;
 }
