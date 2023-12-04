@@ -1,5 +1,3 @@
-#include "range/v3/algorithm/set_algorithm.hpp"
-#include "range/v3/view/set_algorithm.hpp"
 #include <charconv>
 #include <execution>
 #include <string_view>
@@ -101,13 +99,6 @@ auto part2(auto scheduler, std::vector<card> const &cards,
     totals[i] = ranges::distance(set.begin(), set.end());
     counts[i] = 1;
   };
-  auto sweep = [=](std::span<int> totals, std::span<int> counts) {
-    for (auto [i, v] : ranges::views::enumerate(totals)) {
-      for (unsigned long j{i + 1}; j <= i + v; ++j) {
-        counts[j] += counts[i];
-      }
-    }
-  };
   auto [value] =
       stdexec::sync_wait(
           stdexec::just(std::vector<int>(games.size(), 0),
@@ -118,9 +109,13 @@ auto part2(auto scheduler, std::vector<card> const &cards,
                                               std::span{counts}) |
                        stdexec::bulk(games.size(), process) |
                        stdexec::transfer(exec::inline_scheduler{}) |
-                       stdexec::then(sweep) |
                        stdexec::then([=](std::span<int> totals,
                                          std::span<int> counts) {
+                         for (auto [i, v] : ranges::views::enumerate(totals)) {
+                           for (unsigned long j{i + 1}; j <= i + v; ++j) {
+                             counts[j] += counts[i];
+                           }
+                         }
                          return std::reduce(std::execution::par_unseq,
                                             counts.begin(), counts.end(), 0);
                        });

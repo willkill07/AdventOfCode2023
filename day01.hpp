@@ -77,11 +77,12 @@ auto part2(auto scheduler, std::vector<std::string_view> const &parsed,
     {
       tl::optional<std::string_view::size_type> index{tl::nullopt};
       for (int i{1}; std::string_view v : values) {
-        if (size_t const offset = front.find(v);
-            offset != std::string_view::npos and
-            (not index.has_value() or offset < *index)) {
-          index = offset;
-          lo = i;
+        if (auto it = ranges::search(front, v); not it.empty()) {
+          if (auto offset = std::distance(back.begin(), it.begin());
+              not index.has_value() or offset < *index) {
+            index = offset;
+            lo = i;
+          }
         }
         ++i;
       }
@@ -89,11 +90,12 @@ auto part2(auto scheduler, std::vector<std::string_view> const &parsed,
     {
       tl::optional<std::string_view::size_type> index{tl::nullopt};
       for (int i{1}; std::string_view v : values) {
-        if (size_t const offset = back.find(v);
-            offset != std::string_view::npos and
-            (not index.has_value() or offset > *index)) {
-          index = offset;
-          hi = i;
+        if (auto it = ranges::search(back, v); not it.empty()) {
+          if (auto offset = std::distance(back.begin(), it.begin());
+              not index.has_value() or offset > *index) {
+            index = offset;
+            hi = i;
+          }
         }
         ++i;
       }
