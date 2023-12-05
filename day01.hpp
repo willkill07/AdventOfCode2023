@@ -13,6 +13,8 @@ namespace {
 
 using std::string_view_literals::operator""sv;
 
+namespace rv = ranges::views;
+
 auto parse([[maybe_unused]] auto scheduler, std::string_view input) {
   std::vector<std::string_view> lines;
   lines.reserve(1000);
@@ -36,8 +38,7 @@ auto part1(auto scheduler, std::vector<std::string_view> const &parsed) {
     auto const line = lines[i];
     auto is_digit = [](auto c) { return '0' <= c && c <= '9'; };
     auto first = ranges::find_if(line, is_digit);
-    auto last = std::prev(
-        ranges::find_if(line | ranges::views::reverse, is_digit).base());
+    auto last = std::prev(ranges::find_if(line | rv::reverse, is_digit).base());
     int const lo{*first - '0'};
     int const hi{*last - '0'};
     totals[i] = (lo * 10 + hi);
@@ -65,8 +66,7 @@ auto part2(auto scheduler, std::vector<std::string_view> const &parsed,
     auto line = lines[i];
     auto is_digit = [](auto c) { return '0' <= c && c <= '9'; };
     auto first = ranges::find_if(line, is_digit);
-    auto last = std::prev(
-        ranges::find_if(line | ranges::views::reverse, is_digit).base());
+    auto last = std::prev(ranges::find_if(line | rv::reverse, is_digit).base());
     int lo{*first - '0'};
     int hi{*last - '0'};
     std::string_view const front{line.begin(), first};
@@ -74,30 +74,22 @@ auto part2(auto scheduler, std::vector<std::string_view> const &parsed,
     constexpr std::array values{"one"sv,   "two"sv,   "three"sv,
                                 "four"sv,  "five"sv,  "six"sv,
                                 "seven"sv, "eight"sv, "nine"sv};
-    {
-      tl::optional<std::string_view::size_type> index{tl::nullopt};
-      for (int i{1}; std::string_view v : values) {
-        if (auto it = ranges::search(front, v); not it.empty()) {
-          if (auto offset = std::distance(back.begin(), it.begin());
-              not index.has_value() or offset < *index) {
-            index = offset;
-            lo = i;
-          }
+    for (tl::optional<size_t> index; auto [i, v] : rv::enumerate(values)) {
+      if (auto it = ranges::search(front, v); not it.empty()) {
+        if (auto offset = std::distance(back.begin(), it.begin());
+            not index.has_value() or offset < *index) {
+          index = offset;
+          lo = i + 1;
         }
-        ++i;
       }
     }
-    {
-      tl::optional<std::string_view::size_type> index{tl::nullopt};
-      for (int i{1}; std::string_view v : values) {
-        if (auto it = ranges::search(back, v); not it.empty()) {
-          if (auto offset = std::distance(back.begin(), it.begin());
-              not index.has_value() or offset > *index) {
-            index = offset;
-            hi = i;
-          }
+    for (tl::optional<size_t> index; auto [i, v] : rv::enumerate(values)) {
+      if (auto it = ranges::search(back, v); not it.empty()) {
+        if (auto offset = std::distance(back.begin(), it.begin());
+            not index.has_value() or offset > *index) {
+          index = offset;
+          hi = i + 1;
         }
-        ++i;
       }
     }
     totals[i] = (lo * 10 + hi);

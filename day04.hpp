@@ -1,3 +1,4 @@
+#include "range/v3/view/iota.hpp"
 #include <charconv>
 #include <execution>
 #include <string_view>
@@ -12,6 +13,7 @@
 namespace {
 
 using std::string_view_literals::operator""sv;
+namespace rv = ranges::views;
 
 constexpr std::string_view DIGITS{"0123456789"sv};
 
@@ -68,7 +70,7 @@ auto part1(auto scheduler, std::vector<card> const &cards) {
   std::span games{cards};
   auto process = [=](unsigned i, std::span<int> totals) {
     auto &[winners, all] = games[i];
-    auto set = ranges::views::set_intersection(all, winners);
+    auto set = rv::set_intersection(all, winners);
     auto const count{ranges::distance(set.begin(), set.end())};
     if (count > 0) {
       totals[i] = (1 << (count - 1));
@@ -95,7 +97,7 @@ auto part2(auto scheduler, std::vector<card> const &cards,
   std::span games{cards};
   auto process = [=](unsigned i, std::span<int> totals, std::span<int> counts) {
     auto &[winners, all] = games[i];
-    auto set = ranges::views::set_intersection(all, winners);
+    auto set = rv::set_intersection(all, winners);
     totals[i] = ranges::distance(set.begin(), set.end());
     counts[i] = 1;
   };
@@ -111,9 +113,10 @@ auto part2(auto scheduler, std::vector<card> const &cards,
                        stdexec::transfer(exec::inline_scheduler{}) |
                        stdexec::then([=](std::span<int> totals,
                                          std::span<int> counts) {
-                         for (auto [i, v] : ranges::views::enumerate(totals)) {
-                           for (unsigned long j{i + 1}; j <= i + v; ++j) {
-                             counts[j] += counts[i];
+                         for (auto [i, v] : rv::enumerate(totals)) {
+                           for (auto &ticket :
+                                counts | rv::drop(i + 1) | rv::take(v)) {
+                             ticket += counts[i];
                            }
                          }
                          return std::reduce(std::execution::par_unseq,
