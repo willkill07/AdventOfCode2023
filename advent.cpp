@@ -53,15 +53,11 @@ int
 main()
 {
   fmt::print("CPU Execution:\n");
-  {
-    exec::static_thread_pool executor{ std::thread::hardware_concurrency() };
-    run_all(executor);
-  }
+  exec::static_thread_pool cpu_executor{ std::thread::hardware_concurrency() };
+  run_all(cpu_executor);
 #if ENABLE_GPU
   fmt::print("GPU Execution:\n");
-  {
-    nvexec::stream_context executor{};
-    run_all(executor);
-  }
+  nvexec::stream_context gpu_executor{};
+  run_all(gpu_executor);
 #endif
 }
