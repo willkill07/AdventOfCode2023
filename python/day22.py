@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import Counter, defaultdict
 import dataclasses
 
 
@@ -11,8 +11,8 @@ class Coord3D:
 
 @dataclasses.dataclass(kw_only=True)
 class Data:
-    z: int
-    index: int
+    z: int = -1
+    index: int = -1
 
 
 @dataclasses.dataclass
@@ -39,54 +39,46 @@ def parse() -> list[Brick]:
         return sorted(list(map(brick_from_str, f.readlines())), key=lambda b: b.start.z)
 
 
-bricks: list[Brick] = parse()
-
-highest: defaultdict[tuple[int, int], Data] = defaultdict(lambda: Data(z=-1, index=-1))
-bad: set[int] = set()
-graph = defaultdict(list)
-
-for idx, b in enumerate(bricks):
-    max_z: int = -1
-    support: set[int] = set()
-    for x in b.xrange():
-        for y in b.yrange():
-            if highest[x, y].z > max_z:
-                max_z = highest[x, y].z
-                support = {highest[x, y].index}
-            elif highest[x, y].z == max_z:
-                support.add(highest[x, y].index)
-
-    for x in support:
-        if x != -1:
+def fall(bricks: list[Brick]) -> tuple[set[int], defaultdict[int, list[int]]]:
+    highest: defaultdict[tuple[int, int], Data] = defaultdict(Data)
+    bad: set[int] = set()
+    graph: defaultdict[int, list[int]] = defaultdict(list)
+    for idx, b in enumerate(bricks):
+        max_z: int = -1
+        support: set[int] = set()
+        for x in b.xrange():
+            for y in b.yrange():
+                high: Data = highest[x, y]
+                if high.z > max_z:
+                    max_z, support = high.z, {high.index}
+                elif high.z == max_z:
+                    support.add(high.index)
+        for x in support:
             graph[x].append(idx)
-
-    if len(support) == 1:
-        bad.update(support)
-
-    b.zmove(b.start.z - max_z - 1)
-
-    highest.update(
-        ((x, y), Data(z=b.stop.z, index=idx)) for x in b.xrange() for y in b.yrange()
-    )
+        if len(support) == 1:
+            bad.update(support)
+        b.zmove(b.start.z - max_z - 1)
+        highest.update(
+            ((x, y), Data(z=b.stop.z, index=idx))
+            for x in b.xrange()
+            for y in b.yrange()
+        )
+    return bad, graph
 
 
 def count(idx: int, graph: defaultdict[int, list[int]]) -> int:
-    degree: defaultdict[int, int] = defaultdict(int)
-    for g in graph.values():
-        for i in g:
-            degree[i] += 1
-
+    degree: Counter[int] = Counter(i for g in graph.values() for i in g)
     count: int = -1
     q: list[int] = [idx]
     while q:
         count += 1
-        for i in graph[q.pop()]:
-            degree[i] -= 1
-            if degree[i] == 0:
-                q.append(i)
-
+        adj: int = q.pop()
+        degree.subtract(i for i in graph[adj])
+        q.extend(i for i in graph[adj] if not degree[i])
     return count
 
 
+bricks: list[Brick] = parse()
+bad, graph = fall(bricks)
 print(len(bricks) - len(bad) + 1)
 print(sum(count(x, graph) for x in range(len(bricks))))
